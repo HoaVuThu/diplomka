@@ -1,5 +1,6 @@
 from stop_words import get_stop_words
 import re 
+from string import digits
 
 spec_char = [".", "," ,";", "-", "(", ")", "[", "]", '"\"', "/", " "] 
 stop = get_stop_words('czech')

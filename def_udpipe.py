@@ -64,7 +64,7 @@ class Model:
 
         return output
 
-model = Model('czech-pdt-ud-2.4-190531.udpipe')
+model = Model('\\Users\Hoa\Desktop\Diplomka\data\czech-pdt-ud-2.4-190531.udpipe')
 
 #UDPipe preprocessing
 def UDPipe_preprocessing_sentence(text):

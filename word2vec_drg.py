@@ -12,53 +12,7 @@ from gensim.models.phrases import Phrases, Phraser
 import logging
 logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= '%H:%M:%S', level=logging.INFO)
 
-
-'''load_drg = clean_data('.\\drg\\drg-without-comma.json', '.\\drg\\DRG-klasifikace-XPath-vol9_nocodes.xlsx')
-drg = []
-for entity in load_drg:
-    drg.append(entity['elements'])
-
-drg = [UDPipe_preprocessing(line) for ls in drg for line in ls]
-
-for ls in drg:
-    if len(ls) == 0:
-        drg.remove(ls)
-    for word in ls:
-        if word == "." or word == ")"  or word == ";" or word == "," or word == "-" or word in stop:
-            ls.remove(word)
-        if "(" in word:
-            word = word.replace("(", "")
-
-#count number of words 
-number_of_words = 0
-for line in drg:
-    number_of_words += len(line)
-
-
-#stop words
-stop = get_stop_words('czech')
-for i in ['a', 's', 'při', 'k', 'v', 'o', 'z', 'i']:
-    stop.append(i)
-
-#remove stop words   
-for ls in drg:
-    for word in ls:
-        if word in stop:
-            ls.remove(word)
-        
-number_of_words2 = 0
-for line in drg:
-    number_of_words2 += len(line)
-                
-with open('drg_clean_UDPipe_nocodes.txt', 'w', encoding = 'utf8') as outfile:
-    json.dump(drg, outfile, ensure_ascii=False) #almost no codes, opravit XPATHS 
-
-with open('drg_clean_UDPipe.txt', 'r', encoding = 'utf8') as file:
-    drg = json.load(file)
-'''
-
 #data preprocessing
-
 load_drg = clean_data('.\\drg\\drg-without-comma.json', '.\\drg\\DRG-klasifikace-XPath-vol9_nocodes.xlsx')
 drg = []
 for entity in load_drg:
@@ -68,9 +22,11 @@ drg2 = []
 for line in drg:
     drg2.append(" ".join(line))
 
-drg_preproc = text_preprocessing(drg2)# 1 218 438
+#drg_preproc = word_preprocessing(drg2)# 1 119 619 words
+drg_preproc = sentence_preprocessing(drg2)# 1 908 documents
 
-drg_UDPipe = [UDPipe_preprocessing(ls) for ls in drg_preproc]
+
+drg_UDPipe = [UDPipe_preprocessing_word(ls) for ls in drg_preproc]
         
 number_of_words_drg = 0
 
@@ -80,7 +36,6 @@ for line in drg2:
 
 
 ##### word2vec
-
 sent = [word.split() for ls in drg for word in ls]
 phrases = Phrases(sent, min_count=2, progress_per=10000)
 bigram = Phraser(phrases)
@@ -109,7 +64,7 @@ w2v_model.build_vocab(sentences, progress_per=10000)
 #sg - the training algorithm, CBOW - 0, skipgram - 1, defaul = CBOW
  
 model['septický']
- 
+''' 
 def cosine_distance (model, word,target_list , num) :
     cosine_dict ={}
     word_list = []
@@ -127,6 +82,7 @@ def cosine_distance (model, word,target_list , num) :
 lek_disc = list(vocabulary.keys()) 
 
 cosine_distance (model,'Biologie',lek_disc,3)
+'''
 
 def display_closestwords_tsnescatterplot(model, word, size):
     
