@@ -16,7 +16,7 @@ logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= 
 load_drg = clean_data('.\\drg\\drg-without-comma.json', '.\\drg\\DRG-klasifikace-XPath-vol9_nocodes.xlsx')
 drg = []
 for entity in load_drg:
-    drg.append(entity['elements'])
+    drg.append(entity['elements']) ### pomenit kod tu potom aby upravy prebiehali v json 
     
 drg2 = []
 for line in drg:
@@ -49,7 +49,7 @@ len(word_freq)
 
 sorted(word_freq, key=word_freq.get, reverse=True)[:10]
 
-w2v_model= gensim.models.Word2Vec(drg, min_count=2,size= 300,workers=3, window =3, sg = 1)
+w2v_model= gensim.models.Word2Vec(drg, min_count=2,size= 300,workers=3, window =3, sg = 1) #nastrel
 
 cores = multiprocessing.cpu_count() # Count the number of cores in a computer
 
