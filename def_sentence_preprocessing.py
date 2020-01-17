@@ -2,23 +2,23 @@ from stop_words import get_stop_words
 import re 
 from string import digits
 
-spec_char = [".", "," ,";", "-", "(", ")", "[", "]", '"\"', "/", " "] 
-stop = get_stop_words('czech')
-for i in ['a', 'aj', 's', 'při', 'k', 'v', 'o', 'z', 'i', 'u','či' ,'ze', 'ke', 'do', 'po', 'se','aby', 'až', 'ať', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX','X', 'alespoň']:
-    stop.append(i)
-remove_digits = str.maketrans('', '', digits)
-
 def sentence_preprocessing(text): 
+
+    spec_char = [".", "," ,";", "-", "(", ")", "[", "]", '"\"', "/", " "] 
+    stop = get_stop_words('czech')
+    for i in ['a', 'aj', 's', 'při', 'k', 'v', 'o', 'z', 'i', 'u','či' ,'ze', 'ke', 'do', 'po', 'se','aby', 'až', 'ať', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX','X', 'alespoň']:
+        stop.append(i)
+    remove_digits = str.maketrans('', '', digits)
         
     result = []
     
     for ls in text:
-        ls = ls.replace('_', ' ') #remove '_'
-        ls = ls.translate(remove_digits) #remove digits
-        words = re.split('\W+', ls) #split sentence and abbreviations 
+        words = ls.split() #split sentence and abbreviations 
         tmp_sentence = []
         for word_ls in words:
-            word = re.sub(r"\W+", '', word_ls) #remove word from special characters       
+            word = re.sub(r'^[0-9][0-9](.*)?[0-9][0-9]+$' ,'', word_ls)#remove DRG codes 
+            word = word.translate(remove_digits) #remove digits
+            word = re.sub(r"\W+", '', word) #remove word from special characters           
             
             if word in stop or word in spec_char :  #remove words from stop words list
                 continue
