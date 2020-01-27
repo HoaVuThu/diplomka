@@ -66,6 +66,7 @@ class Model:
 
 model = Model('\\Users\Hoa\Desktop\Diplomka\data\czech-pdt-ud-2.4-190531.udpipe')
 
+'''
 #UDPipe preprocessing
 def UDPipe_preprocessing_sentence(text):
     
@@ -95,7 +96,7 @@ def UDPipe_preprocessing_sentence(text):
     result.append(tmp_result)
         
     return result
-
+'''
 
 
 #UDPipe preprocessing
@@ -109,7 +110,7 @@ def UDPipe_preprocessing_word(text):
     
     conll = model.write(sentences, "conllu")
     conll = conll.split('\n')
-    result = []
+    result = ""
     
     for line in conll:    
         if line.startswith("#") or len(line) == 0:
@@ -117,7 +118,7 @@ def UDPipe_preprocessing_word(text):
         
         splitted = line.split()
         #extract lemma 
-        result.append(splitted[2])
+        result += splitted[2] + " "
             
     return result
 

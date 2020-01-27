@@ -1,50 +1,55 @@
 import json
-import codecs
-import pandas as pd
-import re
 import numpy as np
 import matplotlib.pyplot as plt
 from time import time
 from collections import defaultdict
 from sklearn.manifold import TSNE
 import multiprocessing
-from stop_words import get_stop_words
 from gensim.models import Word2Vec
 from gensim.models.phrases import Phrases, Phraser
 import logging
 logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= '%H:%M:%S', level=logging.INFO)
 
-#data preprocessing
-load_drg = clean_data('.\\drg\\drg-without-comma.json', '.\\drg\\DRG-klasifikace-XPath-vol9_nocodes.xlsx')
-drg = []
-for entity in load_drg:
-    drg.append(entity['elements']) ### pomenit kod tu potom aby upravy prebiehali v json 
-    
-drg2 = []
-for line in drg:
-    drg2.append(" ".join(line))
-    
-del drg, load_drg, entity, line
+import pandas as pd
+import dfply as df
+import numpy as np
+import json
 
-#drg_preproc = word_preprocessing(drg2)# 1 119 619 words
-drg_preproc = sentence_preprocessing(drg2)# 1 908 documents
+test = pd.read_excel('jednotkyZaklad.xlsx')
+test = test >> df.drop(df.contains('Rozsah'), )
 
-drg_UDPipe = [UDPipe_preprocessing_word(ls) for ls in drg_preproc] #NS -> n
+test.columns = ['nazev_jednotky', 'specialista', 'garant', 'sekce', 'lek_disc', 'kurz_kod','kurz_nazov', 'vyznam', 'klic_slova', 'vyzn_pojmy', 'vystup']
+test = test.replace(np.nan, "")
+test = test >> df.drop('specialista', 'garant', 'kurz_kod')
 
-for ls in drg_UDPipe: # rucne zasiahnutie zle nalemmatizovanych slov 
-    ls.replace('moci', 'nemoci')
+# concanating all information into new created column 
+test['all'] = ""
+for name_column in test.columns:
+    if name_column == "all":
+        pass
+    else:
+        test['all'] = test['all'].str.cat(test[name_column],  sep=', ')
 
-       
-#number_of_words_drg = 0
+del name_column
 
-#for line in drg2:
-#    splt = line.split()
-#    number_of_words_drg += len(splt)
+test = test >> df.drop('nazev_jednotky', 'sekce', 'lek_disc', 'kurz_nazov', 'vyznam', 'klic_slova', 'vyzn_pojmy', 'vystup') #drop all column but "all" 
+test['all'] = test['all'].str.replace(", ", "", n = 1) #remove first comma 
 
-del i, ls,
+optimed = [words for words in test['all']] #documents into list 
+optimed_preproc = sentence_preprocessing(optimed) #preprocessing
+optimed_UDPipe = [UDPipe_preprocessing(ls) for ls in optimed_preproc] #tokenization + lemmatization 
 
-##### word2vec
-sent = [word.split() for word in drg_UDPipe]
+
+with open('OPTIMED_clean_preprocessed.txt', 'w', encoding = 'utf8') as outfile:
+    json.dump(optimed_UDPipe, outfile, ensure_ascii=False) #almost no codes, opravit XPATHS 
+
+        
+
+with open('OPTIMED_clean_preprocessed.txt', 'r', encoding = 'utf8') as file:
+    optimed_UDPipe = json.load(file)
+
+
+sent = [word.split() for ls in optimed_UDPipe for word in ls]
 phrases = Phrases(sent, min_count=2, progress_per=10000)
 bigram = Phraser(phrases)
 sentences = bigram[sent]
@@ -53,21 +58,20 @@ word_freq = defaultdict(int)
 for sent in sentences:
     for i in sent:
         word_freq[i] += 1
-len(word_freq) #16028
+len(word_freq)
 
-sorted(word_freq, key=word_freq.get, reverse=True)[:10]
+sorted(word_freq, key=word_freq.get, reverse=True)[:20]
 
 cores = multiprocessing.cpu_count() # Count the number of cores in a computer
-
-w2v_model= gensim.models.Word2Vec(min_count=2,size= 300,workers=3, window =3, sg = 1) #nastrel
+w2v_model= Word2Vec(min_count = 2,size = 300,workers= cores -1 , window = 3, sg = 1)
 
 #create vocabulary
 t = time()
 w2v_model.build_vocab(sentences, progress_per=10000)
 print('Time to build vocab: {} mins'.format(round((time() - t) / 60, 2)))
 
-#number of words in vocabulary
-w2v_model.wv.vectors.shape
+#numbers of words in vocabulary 
+w2v_model.wv.vectors.shape 
 
 w2c = dict()
 for item in w2v_model.wv.vocab:
@@ -75,8 +79,8 @@ for item in w2v_model.wv.vocab:
 
 w2cSorted=dict(sorted(w2c.items(), key=lambda x: x[1],reverse=True))
 
+    
 
-#training
 t = time()
 w2v_model.train(sentences, total_examples=w2v_model.corpus_count, epochs=30, report_delay=1)
 print('Time to train the model: {} mins'.format(round((time() - t) / 60, 2)))
@@ -88,7 +92,7 @@ print('Time to train the model: {} mins'.format(round((time() - t) / 60, 2)))
 #sg - the training algorithm, CBOW - 0, skipgram - 1, defaul = CBOW
  
 w2v_model['septický']
-''' 
+ 
 def cosine_distance (model, word,target_list , num) :
     cosine_dict ={}
     word_list = []
@@ -103,10 +107,8 @@ def cosine_distance (model, word,target_list , num) :
         word_list.append((item[0], item[1]))
     return word_list[0:num]
 
-lek_disc = list(vocabulary.keys()) 
 
 cosine_distance (w2v_model,'biologie',w2c,3)
-'''
 
 def display_closestwords_tsnescatterplot(model, word, size):
     
@@ -127,18 +129,17 @@ def display_closestwords_tsnescatterplot(model, word, size):
         Y = tsne.fit_transform(arr)
     x_coords = Y[:, 0]
     y_coords = Y[:, 1]
-    plt.pyplot.scatter(x_coords, y_coords)
+    plt.scatter(x_coords, y_coords)
     for label, x, y in zip(word_labels, x_coords, y_coords):
-            plt.pyplot.annotate(label, xy=(x, y), xytext=(0, 0), textcoords='offset points')
+            plt.annotate(label, xy=(x, y), xytext=(0, 0), textcoords='offset points')
     plt.xlim(x_coords.min()+0.00005, x_coords.max()+0.00005)
     plt.ylim(y_coords.min()+0.00005, y_coords.max()+0.00005)
     plt.show()
 
-display_closestwords_tsnescatterplot(w2v_model, 'šok', 300)
+display_closestwords_tsnescatterplot(w2v_model, 'biologie', 300)
 display_closestwords_tsnescatterplot(w2v_model, 'datum', 300)
 display_closestwords_tsnescatterplot(w2v_model, 'oko', 300) #adnex, adnexa 
 display_closestwords_tsnescatterplot(w2v_model, 'sval', 300) 
 display_closestwords_tsnescatterplot(w2v_model, 'srdce', 300) 
 
 w2v_model.similarity('srdce','sval')
-
