@@ -8,11 +8,13 @@ from time import time
 from collections import defaultdict
 from sklearn.manifold import TSNE
 import multiprocessing
-from stop_words import get_stop_words
-from gensim.models import Word2Vec
-from gensim.models.phrases import Phrases, Phraser
+# from stop_words import get_stop_words
+# from gensim.models import Word2Vec
+# from gensim.models.phrases import Phrases, Phraser
 import logging
 logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= '%H:%M:%S', level=logging.INFO)
+
+from def_clean_data import clean_data
 
 #data preprocessing
 load_drg = clean_data('.\\drg\\drg-without-comma.json', '.\\drg\\DRG-klasifikace-XPath-vol9_nocodes.xlsx')
@@ -33,15 +35,86 @@ drg_UDPipe = [UDPipe_preprocessing_word(ls) for ls in drg_preproc] #NS -> n
 
 for ls in drg_UDPipe: # rucne zasiahnutie zle nalemmatizovanych slov 
     ls.replace('moci', 'nemoci')
-
-       
-#number_of_words_drg = 0
-
-#for line in drg2:
-#    splt = line.split()
-#    number_of_words_drg += len(splt)
-
-del i, ls,
+'''
+předloktit
+nadloktit
+stehný
+n 
+zn
+neurč
+čt_osý
+odpočinek_jídlo
+zra
+urč
+provnat_neh
+nepr_neh
+neh
+on_měkký
+NÚ
+noho
+novotvar_nnch
+Ný 
+provoz_neh
+mot
+tonutí_potop
+infekč
+pagetuv
+vyst
+ca_in
+LAPAROSKOPICKY
+pev_přka
+želez
+řid
+neprovnat_neh
+Nebo
+kompl
+výst
+hermatros
+bus_zrá
+blaný
+dodavý
+lát
+bakter
+bus
+RESEKCE
+exp
+čéška
+parazit_on
+oba
+on
+druhý
+dopr
+vytv
+ucp_dý
+vd_polk
+cho_škoda
+novotvar_NNCH
+vyst_kontr
+vystv_nekontr
+přesně
+ý
+hk_DK
+kot
+AORTY
+Jednostranný
+CÉVOU_VZP
+sek_neurč
+říd_kol
+Protetický_VZP
+první
+druhý
+třetí
+sponto_roztrž
+do
+v_STACIONÁŘI
+Autologní_CÉVOU
+BYPASS_FEMORO
+edý
+zbr
+EXCIZE_Exstirpace
+pr
+'''
+del ls
 
 ##### word2vec
 sent = [word.split() for word in drg_UDPipe]
@@ -53,12 +126,11 @@ word_freq = defaultdict(int)
 for sent in sentences:
     for i in sent:
         word_freq[i] += 1
-len(word_freq) #16028
+len(word_freq) #16 028
 
 sorted(word_freq, key=word_freq.get, reverse=True)[:10]
 
 cores = multiprocessing.cpu_count() # Count the number of cores in a computer
-
 w2v_model= gensim.models.Word2Vec(min_count=2,size= 300,workers=3, window =3, sg = 1) #nastrel
 
 #create vocabulary
@@ -67,7 +139,7 @@ w2v_model.build_vocab(sentences, progress_per=10000)
 print('Time to build vocab: {} mins'.format(round((time() - t) / 60, 2)))
 
 #number of words in vocabulary
-w2v_model.wv.vectors.shape
+w2v_model.wv.vectors.shape #14019 sentences, 9390 sent 
 
 w2c = dict()
 for item in w2v_model.wv.vocab:
@@ -78,8 +150,8 @@ w2cSorted=dict(sorted(w2c.items(), key=lambda x: x[1],reverse=True))
 
 #training
 t = time()
-w2v_model.train(sentences, total_examples=w2v_model.corpus_count, epochs=30, report_delay=1)
-print('Time to train the model: {} mins'.format(round((time() - t) / 60, 2)))
+w2v_model.train(sent, total_examples=w2v_model.corpus_count, epochs=30, report_delay=1)
+print('Time to train the model: {} mins'.format(round((time() - t) / 60, 2))) # ~ 2min 4 sek 
 
 #size - the number of dimension of the embeddings, def = 100
 #window - the maximum distance between a target word and words around the target word, def = 5
@@ -127,9 +199,9 @@ def display_closestwords_tsnescatterplot(model, word, size):
         Y = tsne.fit_transform(arr)
     x_coords = Y[:, 0]
     y_coords = Y[:, 1]
-    plt.pyplot.scatter(x_coords, y_coords)
+    plt.scatter(x_coords, y_coords)
     for label, x, y in zip(word_labels, x_coords, y_coords):
-            plt.pyplot.annotate(label, xy=(x, y), xytext=(0, 0), textcoords='offset points')
+            plt.annotate(label, xy=(x, y), xytext=(0, 0), textcoords='offset points')
     plt.xlim(x_coords.min()+0.00005, x_coords.max()+0.00005)
     plt.ylim(y_coords.min()+0.00005, y_coords.max()+0.00005)
     plt.show()

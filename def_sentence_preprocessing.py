@@ -1,13 +1,14 @@
 from stop_words import get_stop_words
 import re 
+import pandas as pd
 
 def sentence_preprocessing(text): 
     
     digits = '0123456798'
     spec_char = [".", "," ,";", "-", "(", ")", "[", "]", '"\"', "/", " "] 
     stop = get_stop_words('czech')
-    for i in ['a', 'aj', 's', 'při', 'k', 'v', 'o', 'z', 'i', 'u','či' ,'ze', 'ke', 'do', 'po', 'se','aby', 'až', 'ať', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX','X', 'alespoň', 'nad', 'pod', 'ZZ', 'CC']:
-        stop.append(i)
+    stop2 = pd.read_excel('stop.xlsx')
+    stop += stop2['stop_words'].values.tolist()
     remove_digits = str.maketrans('', '', digits)
         
     result = []

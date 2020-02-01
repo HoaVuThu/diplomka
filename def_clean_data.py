@@ -27,7 +27,7 @@ def clean_data(data, xpath):
              for i in range(len(onelist)):
                  onelist[i] = onelist[i].translate({ord('\n'): None}).translate({ord('\t'): None}).translate({ord('•'):None})
 
-#creating new feature - category
+#creating new feature - category - opravit, dava vsade []
     for entity in result:
         if entity['elements'][2]  == "":
             entity['category'] = "jiné"

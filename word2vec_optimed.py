@@ -1,4 +1,6 @@
 import json
+import pandas as pd
+import dfply as df
 import numpy as np
 import matplotlib.pyplot as plt
 from time import time
@@ -10,10 +12,6 @@ from gensim.models.phrases import Phrases, Phraser
 import logging
 logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= '%H:%M:%S', level=logging.INFO)
 
-import pandas as pd
-import dfply as df
-import numpy as np
-import json
 
 test = pd.read_excel('jednotkyZaklad.xlsx')
 test = test >> df.drop(df.contains('Rozsah'), )
@@ -35,21 +33,19 @@ del name_column
 test = test >> df.drop('nazev_jednotky', 'sekce', 'lek_disc', 'kurz_nazov', 'vyznam', 'klic_slova', 'vyzn_pojmy', 'vystup') #drop all column but "all" 
 test['all'] = test['all'].str.replace(", ", "", n = 1) #remove first comma 
 
-optimed = [words for words in test['all']] #documents into list 
+optimed = [words for words in test['all']] #convert documents into list 
 optimed_preproc = sentence_preprocessing(optimed) #preprocessing
-optimed_UDPipe = [UDPipe_preprocessing(ls) for ls in optimed_preproc] #tokenization + lemmatization 
+optimed_UDPipe = [UDPipe_preprocessing_word(ls) for ls in optimed_preproc] #tokenization + lemmatization 
 
 
 with open('OPTIMED_clean_preprocessed.txt', 'w', encoding = 'utf8') as outfile:
-    json.dump(optimed_UDPipe, outfile, ensure_ascii=False) #almost no codes, opravit XPATHS 
-
-        
+    json.dump(optimed_UDPipe, outfile, ensure_ascii=False)         
 
 with open('OPTIMED_clean_preprocessed.txt', 'r', encoding = 'utf8') as file:
     optimed_UDPipe = json.load(file)
 
 
-sent = [word.split() for ls in optimed_UDPipe for word in ls]
+sent = [word.split() for word in optimed_UDPipe]
 phrases = Phrases(sent, min_count=2, progress_per=10000)
 bigram = Phraser(phrases)
 sentences = bigram[sent]
@@ -58,8 +54,8 @@ word_freq = defaultdict(int)
 for sent in sentences:
     for i in sent:
         word_freq[i] += 1
-len(word_freq)
-
+len(word_freq) #27 852
+ 
 sorted(word_freq, key=word_freq.get, reverse=True)[:20]
 
 cores = multiprocessing.cpu_count() # Count the number of cores in a computer
@@ -71,7 +67,7 @@ w2v_model.build_vocab(sentences, progress_per=10000)
 print('Time to build vocab: {} mins'.format(round((time() - t) / 60, 2)))
 
 #numbers of words in vocabulary 
-w2v_model.wv.vectors.shape 
+w2v_model.wv.vectors.shape #17 034 sentences, 11 647 sent
 
 w2c = dict()
 for item in w2v_model.wv.vocab:
@@ -79,7 +75,200 @@ for item in w2v_model.wv.vocab:
 
 w2cSorted=dict(sorted(w2c.items(), key=lambda x: x[1],reverse=True))
 
-    
+'''
+tento
+jednotlivý
+včetně
+abnormalita_tento
+možný?
+další
+syntromě
+být
+zejména
+mikrobiologický_mikrobiologický
+vyšetření_podle
+dle
+podle
+popsat_compartment
+a
+všechen
+také
+některý
+jícno
+vv
+prsa
+hormon
+jeho
+rr
+často
+et
+jenž
+který
+be
+on
+mm`milimetr
+us
+ct
+uvedený
+ten
+oblast_ci
+také_mikroba
+vs
+svat
+aa
+moci
+VJ
+jeden
+se
+Mister
+sekrec
+apod
+na
+daný
+být_mít
+gll
+jmenovat
+nn
+v
+hodně
+nový
+velmi
+CD
+LD_km
+ca_CRP
+ct_CNS
+Il_Il
+edý
+tj
+CD_CD
+druhý
+jaký
+lze
+rovněž
+Il
+ie
+rh
+však
+zvýšený
+an
+iga
+in
+jednak
+nasi
+ph
+při
+VVV
+HCAI
+atd
+igg
+pet
+ae
+chromosom
+chromozom
+již
+mnoho
+mimo
+ca
+de
+karcien
+mezi
+mít_být
+Gist
+dg
+ei
+gl
+hrtat
+jet
+jít
+pomoci
+stále
+th
+určený
+varlat
+ad
+UZ
+and_^(obv._souč._anglických_názvů,_"a"
+ani
+bez
+buď
+což
+dít
+fibrát
+ig
+igg_ig
+kom
+kromě
+mít
+obvykle
+All_All
+HLA_HLA
+Malta_lymfom
+P
+P_ovzduší
+dva
+močův
+ncl
+ncíl
+noh
+nv
+oogenézt
+opláziit
+opláziout
+papit
+sup
+síný
+tři
+uhý_smysl
+zcela
+zda
+zde
+cca
+gnrh
+hcl
+lymeský
+male
+naopak
+no
+néva
+oba
+pat
+per
+sak
+sarkdo
+též
+up
+XI
+XII
+ab
+dalý_péče
+devicův
+digitý
+gis
+gingivo
+igd
+ire
+jako
+lební
+mon
+opět
+p
+pr
+sem
+semien
+ser
+seznámý
+shnutový
+Ch
+Cth
+Pq
+Pnet
+Pth
+RAAS
+Tia
+_
+mamm
+*3
+'''    
 
 t = time()
 w2v_model.train(sentences, total_examples=w2v_model.corpus_count, epochs=30, report_delay=1)
