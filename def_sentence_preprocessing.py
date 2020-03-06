@@ -23,15 +23,14 @@ def sentence_preprocessing(text):
             
             if len(word) == 1:
                 continue
-            if word in stop or word in spec_char :  #remove words from stop words list
+            if word in stop or word in spec_char:  #remove words from stop words list
                 continue
             
-            if word.isupper(): #keep abbreviations as HIV, AIDS 
-                tmp_sentence.append(word) 
-            
-            else:             
-                word = word.lower() #lower words 
-                tmp_sentence.append(word)
+ #           if word.isupper(): #keep abbreviations as HIV, AIDS 
+  #              tmp_sentence.append(word) 
+  
+            word = word.lower() #lower words 
+            tmp_sentence.append(word)
             
         tmp_res = ' '.join(tmp_sentence)
         result.append(tmp_res)
