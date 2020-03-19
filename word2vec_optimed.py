@@ -38,6 +38,8 @@ optimed = [words for words in test['all']] #convert documents into list
 optimed_preproc = sentence_preprocessing(optimed) #preprocessing
 optimed_UDPipe = [UDPipe_preprocessing_word(ls) for ls in optimed_preproc] #tokenization + lemmatization 
 
+with open('OPTIMED_clean_preprocessed.txt', 'w', encoding = 'utf8') as outfile:
+    json.dump(optimed_UDPipe, outfile, ensure_ascii=False)         
 
 with open('OPTIMED_clean_preprocessed.txt', 'r', encoding = 'utf8') as file:
     optimed_UDPipe = json.load(file)
