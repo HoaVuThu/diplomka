@@ -1,3 +1,5 @@
+libraries:  ufal.udpipe, stop_words, re, pandas, gensim, smart_open, json 
+
 download and move into one folder:
   cmdParamReadingExample.py
   def_udpipe.py
