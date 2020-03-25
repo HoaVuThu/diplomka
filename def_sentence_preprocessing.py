@@ -4,7 +4,7 @@ import pandas as pd
 
 def sentence_preprocessing(text): 
     
-    digits = '0123456798'
+    digits = '0123456789'
     spec_char = [".", "," ,";", "-", "(", ")", "[", "]", '"\"', "/", " "] 
     stop = get_stop_words('czech')
     stop2 = pd.read_excel('stop.xlsx')

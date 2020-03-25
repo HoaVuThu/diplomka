@@ -18,7 +18,7 @@ train_corpus= [list(ls.split(" ")) for ls in train_corpus]
 
 train_corpus = list(create_tagged_document(train_corpus))
 
-with open('drg_clean_preprocessed.txt', 'r', encoding = 'utf8') as file:
+with open('drg_clean_preprocessed_json.txt', 'r', encoding = 'utf8') as file:
     test_corpus = json.load(file)
 
 
@@ -26,34 +26,27 @@ model = gensim.models.doc2vec.Doc2Vec(vector_size=50, min_count=2, epochs=40)
 model.build_vocab(train_corpus)
 model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
 
-####
+model.init_sims(replace=True)
+model.save("doc2vec_optimed.model")
+model.save("doc2vec_optimed.kv")
+#########
 
-
-import itertools
-test_corpus.sort()
-tst_no_dup = list(test_corpus for test_corpus,_ in itertools.groupby(test_corpus))
-
-drg.sort()
-drg_no_dup = list(drg for drg,_ in itertools.groupby(drg))
-
-
-####
-sub_test_corpus = tst_no_dup[-31:-1]
-st = set(sub_test_corpus)
-inx =([i for i, e in enumerate(test_corpus) if e in sub_test_corpus])
-  
-output = pd.DataFrame(columns = ["doc1", "doc2", "cosine_similarity", "ranged_similarity"])
+sub_test_corpus = test_corpus[-31:-1]
+ 
+output = pd.DataFrame(columns = ["doc1", "doc2", "link_doc1", "link_doc2" ,"cosine_similarity", "ranged_similarity"])
 
 n = len(sub_test_corpus)
-for i in range(n):
+for i, entity_i in enumerate(sub_test_corpus):
     if i == n:
         break
-    for j in range(i + 1, n):
-        vec1 = model.infer_vector(sub_test_corpus[i])
-        vec2 = model.infer_vector(sub_test_corpus[j])
+    for j, entity_j in enumerate(sub_test_corpus):
+        if j >= i:
+            continue
+        vec1 = model.infer_vector(entity_i['elements'])
+        vec2 = model.infer_vector(entity_j['elements'])
         cos = 1 - spatial.distance.cosine(vec1, vec2)
-        similarity = (cos + 1)/2
-        output = output.append({'doc1': i, 'doc2': j, 'cosine_similarity': cos, 'ranged_similarity': similarity}, ignore_index=True)
+        similarity = round(((cos + 1)/2)*100, 2)
+        output = output.append({'doc1': i, 'doc2': j, 'link_doc1': entity_i['url'], 'link_doc2': entity_j['url'] ,'cosine_similarity': cos, 'ranged_similarity': similarity}, ignore_index=True)
         
 final = output.sort_values(by = ['ranged_similarity'])[:10]
 final = final.append(output.sort_values(by = ['ranged_similarity'], ascending = False)[:10])
@@ -61,10 +54,6 @@ final = final.append(output.sort_values(by = ['ranged_similarity'], ascending = 
 
 for i in range(n):
     with open('doc'+str(i)+'.txt', 'w', encoding = 'utf8') as outfile:
-        json.dump(sub_test_corpus[i], outfile, ensure_ascii=False)  
-
-for i, ind in enumerate(inx):
-    with open('doc'+str(i)+'_orig.txt', 'w', encoding = 'utf8') as outfile:
-        json.dump(drg[ind], outfile, ensure_ascii=False)     
+        json.dump(sub_test_corpus[i], outfile, ensure_ascii=False)      
         
 final.to_csv('output.csv', sep='\t', encoding='utf-8')
