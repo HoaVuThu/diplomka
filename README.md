@@ -4,6 +4,7 @@ download and move into one folder:
   cmdParamReadingExample.py
   def_udpipe.py
   def_sentence_preprocessing.py 
+  doc2vec_optimed.model
   
 from https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-3131 download "model czech-pdt-ud-2.5-191206.udpipe"
 
