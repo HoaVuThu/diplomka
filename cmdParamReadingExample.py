@@ -21,6 +21,7 @@ str_2 = " ".join(UDPipe_2)
 ### doc2vec
 
 model = doc2vec.Doc2Vec.load('doc2vec_optimed.model')
+model.random.seed(0)
 
 vec1 =  model.infer_vector(UDPipe_1)
 vec2 =  model.infer_vector(UDPipe_2)
