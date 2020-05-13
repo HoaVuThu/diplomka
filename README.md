@@ -1,21 +1,32 @@
-libraries:  ufal.udpipe, stop_words, re, pandas, gensim, smart_open, json 
+# Requirements
+### Minimal python version
+* 3.7.4
 
-download and move into one folder:
-  cmdParamReadingExample.py
-  def_udpipe.py
-  def_sentence_preprocessing.py 
-  doc2vec_optimed.model
-  
-from https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-3131 download "model czech-pdt-ud-2.5-191206.udpipe"
+### Python libraries
+* ufal.udpipe
+* stop_words
+* re
+* pandas 
+* gensim
+* smart_open
+* json 
 
-change path in def_udpipe to path where you downloaded "czech-pdt-ud-2.5-191206.udpipe"
+# How to run
+1. open cmd
+1. `git clone https://github.com/HoaVuThu/diplomka.git`
+1. `cd diplomka`
+1. Download [model](https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3131/czech-pdt-ud-2.5-191206.udpipe?sequence=19&isAllowed=y) for tokenization and lemmatization into diplomka folder
+1. `python cmdParamReadingExample.py <string> <string>`
 
-oped cmd and change directory to the one where you moved downloaded python skripts 
+# Example
+**command:**
 
-write: python cmdParamReadingExample.py "sentence 1" "sentence 2"
+`python cmdParamReadingExample.py "infarkt" "srdeční nemoci"`
 
-output:
-preprocessed sentence 1
-preprocessed sentence 2
-cosine similarity
-ranged cosine similarity 
+**output:**
+```
+First Argument: infarkt
+Second Argument: srdeční nemoc
+Cosinus similarity: 0.8432024121284485
+Cosinus similarity ranged from 0 to 1: 92.16
+```
