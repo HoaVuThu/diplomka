@@ -24,11 +24,11 @@ for entity in test_corpus_json:
 #    text.append(entity['elements'])
     test_corpus.append(entity['elements'])
 
-print(train_corpus[:2])
-print(test_corpus[:2])
-sub_test_corpus = test_corpus[-31:-1]
+#print(train_corpus[:2])
+#print(test_corpus[:2])
+#sub_test_corpus = test_corpus[-31:-1]
 
-model = gensim.models.doc2vec.Doc2Vec(vector_size = 50, min_count = 5, epochs = 30, workers = 1, dm = 0, dbow = 1, seed = 42)
+model = gensim.models.doc2vec.Doc2Vec(vector_size = 50, min_count = 5, epochs = 30, workers = 1, dm = 0, dbow = 1, seed = 0)
 model.build_vocab(train_corpus)
 model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
 

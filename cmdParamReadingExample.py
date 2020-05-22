@@ -1,7 +1,6 @@
 import sys
 from gensim.models import doc2vec
 from scipy import spatial
-
 from def_udpipe import UDPipe_preprocessing_word
 from def_sentence_preprocessing import sentence_preprocessing
 

@@ -1,3 +1,5 @@
+import numpy as np
+
 def cosine_distance (model, word,target_list , num) :
     cosine_dict ={}
     word_list = []

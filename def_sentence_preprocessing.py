@@ -14,7 +14,7 @@ def sentence_preprocessing(text):
     result = []
     
     for ls in text:
-        ls = re.sub(r'^[0-9][0-9](.*)?[0-9][0-9]+$' ,'', ls)#remove DRG codes 
+        # ls = re.sub(r'^[0-9][0-9](.*)?[0-9][0-9]+$' ,'', ls)#remove DRG codes 
         words = re.split('\W+', ls) #split sentence and abbreviations (for example: zpus.j.vnitr.)
         tmp_sentence = []
         for word_ls in words:
