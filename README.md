@@ -15,7 +15,7 @@
 1. open cmd
 1. `git clone https://github.com/HoaVuThu/diplomka.git`
 1. `cd diplomka`
-1. Download [model](https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-3131/czech-pdt-ud-2.5-191206.udpipe?sequence=19&isAllowed=y) for tokenization and lemmatization into diplomka folder
+1. Download [model](https://lindat.mff.cuni.cz/repository/xmlui/bitstream/handle/11234/1-2998/czech-pdt-ud-2.4-190531.udpipe?sequence=20&isAllowed=y) for tokenization and lemmatization into diplomka folder
 1. `python cmdParamReadingExample.py <string> <string>`
 
 # Example
