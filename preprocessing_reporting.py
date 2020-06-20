@@ -3,9 +3,9 @@ import codecs
 import pandas as pd
 from lxml import html
 import re
+
+from def_functions import clean_html, sentence_preprocessing 
 from def_udpipe import UDPipe_preprocessing_word
-from def_sentence_preprocessing import sentence_preprocessing
-from def_remove_HTML_tags import clean_html
 
 jsonData = codecs.open('.\\reporting\\reporting-without-comma.json', 'r', 'utf-8-sig').read()
 reporting = json.loads(jsonData)

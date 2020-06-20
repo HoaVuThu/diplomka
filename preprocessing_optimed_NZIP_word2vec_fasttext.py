@@ -5,10 +5,11 @@ import numpy as np
 from gensim.models import Word2Vec
 from sklearn.manifold import TSNE
 
-from def_udpipe import UDPipe_preprocessing_word
-from def_sentence_preprocessing import sentence_preprocessing
 from def_word2vec_viz import tsne_plot_similar_words
-from def_remove_HTML_tags import clean_html
+
+
+from def_functions import clean_html, sentence_preprocessing, tsne_plot_similar_words
+from def_udpipe import UDPipe_preprocessing_word
 
 import logging
 logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= '%H:%M:%S', level=logging.INFO)

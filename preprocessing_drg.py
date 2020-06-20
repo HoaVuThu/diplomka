@@ -1,7 +1,7 @@
 import json
+
+from def_functions import sentence_preprocessing, clean_data
 from def_udpipe import UDPipe_preprocessing_word
-from def_sentence_preprocessing import sentence_preprocessing
-from def_clean_data import clean_data
 
 ### DRG
 
