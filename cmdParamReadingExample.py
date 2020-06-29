@@ -1,10 +1,9 @@
 import sys
 from gensim.models import doc2vec
 from scipy import spatial
-from def_udpipe import UDPipe_preprocessing_word
-from def_sentence_preprocessing import sentence_preprocessing
-from def_remove_HTML_tags import clean_html
 
+from def_functions import clean_html, sentence_preprocessing 
+from def_udpipe import UDPipe_preprocessing_word
 
 Arg_1 = sys.argv[1]
 Arg_2 = sys.argv[2]
